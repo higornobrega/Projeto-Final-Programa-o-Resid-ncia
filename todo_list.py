@@ -77,4 +77,31 @@ class TaskModel:
         query = "UPDATE tasks SET title = ?, description = ? WHERE id = ?"
         self.db.execute_query(query, (new_title, new_description, task_id))
 
-# Interface gráfica
+class TaskView(tk.Frame):
+    def __init__(self, root: tk.Tk, controller):
+        super().__init__(root)
+        self.controller = controller
+        self.root = root
+        self.root.title("To-Do List")
+        self.selected_task_id = None
+        self._build_ui()
+        self.load_tasks()
+
+    def _build_ui(self):
+        self.pack(padx=10, pady=10)
+        self.title_entry = tk.Entry(self, width=40)
+        self.title_entry.grid(row=0, column=0, padx=5, pady=5)
+
+        self.task_entry = tk.Entry(self, width=40)
+        self.task_entry.grid(row=1, column=0, padx=5, pady=5)
+
+        self.add_edit_button = tk.Button(
+            self, text="Adicionar", command=self.add_or_edit_task)
+        self.add_edit_button.grid(row=2, column=0, padx=5, pady=5)
+
+        self.task_list = tk.Listbox(self, width=50, height=10)
+        self.task_list.grid(row=3, column=0, columnspan=2, pady=10)
+        self.task_list.bind("<<ListboxSelect>>", self.fill_fields)
+
+        tk.Button(self, text="Remover", command=self.delete_task).grid(
+            row=4, column=0, columnspan=2, pady=5)
