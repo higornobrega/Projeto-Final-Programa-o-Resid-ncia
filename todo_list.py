@@ -105,3 +105,59 @@ class TaskView(tk.Frame):
 
         tk.Button(self, text="Remover", command=self.delete_task).grid(
             row=4, column=0, columnspan=2, pady=5)
+        
+    def add_or_edit_task(self):
+        title = self.title_entry.get().strip()
+        task = self.task_entry.get().strip()
+        if title and task:
+            if self.selected_task_id:
+                self.controller.update_task(self.selected_task_id, title, task)
+                self.selected_task_id = None
+                self.add_edit_button.config(text="Adicionar")
+            else:
+                self.controller.add_task(title, task)
+            self.title_entry.delete(0, tk.END)
+            self.task_entry.delete(0, tk.END)
+            self.load_tasks()
+        else:
+            messagebox.showwarning(
+                "Aviso", "O título e a descrição da tarefa não podem estar vazios!")
+    def fill_fields(self, event):
+        try:
+            selection = self.task_list.curselection()
+            if not selection:  # Verifica se há uma seleção antes de acessar
+                return
+            
+            selected_task = self.task_list.get(selection[0])
+            if selected_task:
+                task_id, title_desc = selected_task.split(" - ", 1)
+                title, desc = title_desc.split(": ", 1)
+                self.selected_task_id = int(task_id)
+                
+                # Preenche os campos com os dados da tarefa selecionada
+                self.title_entry.delete(0, tk.END)
+                self.task_entry.delete(0, tk.END)
+                self.title_entry.insert(0, title)
+                self.task_entry.insert(0, desc)
+                
+                self.add_edit_button.config(text="Editar")
+        except (IndexError, ValueError):
+            pass  # Se houver um erro inesperado, ignora e não altera nada
+
+    def load_tasks(self):
+        self.task_list.delete(0, tk.END)
+        for task in self.controller.get_tasks():
+            self.task_list.insert(tk.END, f"{task[0]} - {task[1]}: {task[2]}")
+
+    def delete_task(self):
+        try:
+            selected_task = self.task_list.get(self.task_list.curselection())
+            if selected_task:
+                task_id = int(selected_task.split(" - ")[0])
+                self.controller.delete_task(task_id)
+                self.selected_task_id = None
+                self.add_edit_button.config(text="Adicionar")
+                self.load_tasks()
+        except (IndexError, ValueError):
+            messagebox.showwarning(
+                "Aviso", "Selecione uma tarefa para remover!")
