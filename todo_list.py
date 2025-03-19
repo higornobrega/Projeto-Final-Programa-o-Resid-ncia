@@ -77,6 +77,7 @@ class TaskModel:
         query = "UPDATE tasks SET title = ?, description = ? WHERE id = ?"
         self.db.execute_query(query, (new_title, new_description, task_id))
 
+
 class TaskView(tk.Frame):
     def __init__(self, root: tk.Tk, controller):
         super().__init__(root)
@@ -105,7 +106,7 @@ class TaskView(tk.Frame):
 
         tk.Button(self, text="Remover", command=self.delete_task).grid(
             row=4, column=0, columnspan=2, pady=5)
-        
+
     def add_or_edit_task(self):
         title = self.title_entry.get().strip()
         task = self.task_entry.get().strip()
@@ -122,24 +123,25 @@ class TaskView(tk.Frame):
         else:
             messagebox.showwarning(
                 "Aviso", "O título e a descrição da tarefa não podem estar vazios!")
+
     def fill_fields(self, event):
         try:
             selection = self.task_list.curselection()
             if not selection:  # Verifica se há uma seleção antes de acessar
                 return
-            
+
             selected_task = self.task_list.get(selection[0])
             if selected_task:
                 task_id, title_desc = selected_task.split(" - ", 1)
                 title, desc = title_desc.split(": ", 1)
                 self.selected_task_id = int(task_id)
-                
+
                 # Preenche os campos com os dados da tarefa selecionada
                 self.title_entry.delete(0, tk.END)
                 self.task_entry.delete(0, tk.END)
                 self.title_entry.insert(0, title)
                 self.task_entry.insert(0, desc)
-                
+
                 self.add_edit_button.config(text="Editar")
         except (IndexError, ValueError):
             pass  # Se houver um erro inesperado, ignora e não altera nada
@@ -161,3 +163,20 @@ class TaskView(tk.Frame):
         except (IndexError, ValueError):
             messagebox.showwarning(
                 "Aviso", "Selecione uma tarefa para remover!")
+
+
+class TaskController:
+    def __init__(self, model: TaskModel):
+        self.model = model
+
+    def add_task(self, title: str, description: str):
+        self.model.add_task(title, description)
+
+    def get_tasks(self):
+        return self.model.get_tasks()
+
+    def delete_task(self, task_id: int):
+        self.model.delete_task(task_id)
+
+    def update_task(self, task_id: int, new_title: str, new_description: str):
+        self.model.update_task(task_id, new_title, new_description)
