@@ -56,3 +56,25 @@ class SQLiteDatabase(DatabaseBase):
 
     def close(self):
         self.conn.close()
+
+
+class TaskModel:
+    def __init__(self, db: DatabaseBase):
+        self.db = db
+
+    def add_task(self, title: str, description: str):
+        query = "INSERT INTO tasks (title, description) VALUES (?, ?)"
+        self.db.execute_query(query, (title, description))
+
+    def get_tasks(self):
+        return self.db.execute_query("SELECT id, title, description FROM tasks ORDER BY id", fetch=True)
+
+    def delete_task(self, task_id: int):
+        query = "DELETE FROM tasks WHERE id = ?"
+        self.db.execute_query(query, (task_id,))
+
+    def update_task(self, task_id: int, new_title: str, new_description: str):
+        query = "UPDATE tasks SET title = ?, description = ? WHERE id = ?"
+        self.db.execute_query(query, (new_title, new_description, task_id))
+
+# Interface gráfica
