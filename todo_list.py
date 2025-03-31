@@ -1,30 +1,15 @@
 import sqlite3
 import tkinter as tk
-from abc import ABC, abstractmethod
 from tkinter import messagebox
 
-import psycopg2
-from psycopg2 import sql
 
-POSTGRES_CONFIG = {
-    "dbname": "todo_list",
-    "user": "todo_list",
-    "password": "todo_list",
-    "host": "localhost",
-    "port": "5432"
-}
-
-
-class DatabaseBase(ABC):
-    @abstractmethod
+class DatabaseBase():
     def connect(self):
         pass
 
-    @abstractmethod
     def execute_query(self, query, params=None, fetch=False):
         pass
 
-    @abstractmethod
     def close(self):
         pass
 
@@ -34,12 +19,13 @@ class SQLiteDatabase(DatabaseBase):
         self.db_name = db_name
         self.conn = self.connect()
         self.cur = self.conn.cursor()
-        self._create_table()
+        self.crair_tabela()
 
     def connect(self):
-        return sqlite3.connect(self.db_name)
+        coneccao = sqlite3.connect(self.db_name)
+        return coneccao
 
-    def _create_table(self):
+    def crair_tabela(self):
         query = """
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,23 +65,24 @@ class TaskModel:
 
 
 class TaskView(tk.Frame):
-    def __init__(self, root: tk.Tk, controller):
+    def __init__(self, root, model):
         super().__init__(root)
-        self.controller = controller
+        self.controller = TaskController(model)
         self.root = root
         self.root.title("To-Do List")
         self.selected_task_id = None
-        self._build_ui()
+        self.inicializar_atribut_front()
+
+    def inicializar_atribut_front(self):
+        self.inicio_atribut_front()
         self.load_tasks()
 
-    def _build_ui(self):
+    def inicio_atribut_front(self):
         self.pack(padx=10, pady=10)
         self.title_entry = tk.Entry(self, width=40)
         self.title_entry.grid(row=0, column=0, padx=5, pady=5)
-
         self.task_entry = tk.Entry(self, width=40)
         self.task_entry.grid(row=1, column=0, padx=5, pady=5)
-
         self.add_edit_button = tk.Button(
             self, text="Adicionar", command=self.add_or_edit_task)
         self.add_edit_button.grid(row=2, column=0, padx=5, pady=5)
@@ -127,7 +114,7 @@ class TaskView(tk.Frame):
     def fill_fields(self, event):
         try:
             selection = self.task_list.curselection()
-            if not selection:  # Verifica se há uma seleção antes de acessar
+            if not selection:
                 return
 
             selected_task = self.task_list.get(selection[0])
@@ -136,7 +123,6 @@ class TaskView(tk.Frame):
                 title, desc = title_desc.split(": ", 1)
                 self.selected_task_id = int(task_id)
 
-                # Preenche os campos com os dados da tarefa selecionada
                 self.title_entry.delete(0, tk.END)
                 self.task_entry.delete(0, tk.END)
                 self.title_entry.insert(0, title)
@@ -144,7 +130,7 @@ class TaskView(tk.Frame):
 
                 self.add_edit_button.config(text="Editar")
         except (IndexError, ValueError):
-            pass  # Se houver um erro inesperado, ignora e não altera nada
+            pass
 
     def load_tasks(self):
         self.task_list.delete(0, tk.END)
@@ -180,3 +166,12 @@ class TaskController:
 
     def update_task(self, task_id: int, new_title: str, new_description: str):
         self.model.update_task(task_id, new_title, new_description)
+
+
+if __name__ == "__main__":
+    db = SQLiteDatabase()
+    model = TaskModel(db)
+    root = tk.Tk()
+    TaskView(root, model)
+    root.mainloop()
+    db.close()

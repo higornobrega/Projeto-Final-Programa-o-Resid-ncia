@@ -1,0 +1,13 @@
+digraph "classes_MeuProjeto" {
+rankdir=BT
+charset="utf-8"
+"todo_list.DatabaseBase" [color="black", fontcolor="black", label=<{DatabaseBase|<br ALIGN="LEFT"/>|<I>close</I>()<br ALIGN="LEFT"/><I>connect</I>()<br ALIGN="LEFT"/><I>execute_query</I>(query, params, fetch)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"todo_list.SQLiteDatabase" [color="black", fontcolor="black", label=<{SQLiteDatabase|conn<br ALIGN="LEFT"/>cur<br ALIGN="LEFT"/>db_name : str<br ALIGN="LEFT"/>|close()<br ALIGN="LEFT"/>connect()<br ALIGN="LEFT"/>crair_tabela()<br ALIGN="LEFT"/>execute_query(query, params, fetch)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"todo_list.TaskController" [color="black", fontcolor="black", label=<{TaskController|model<br ALIGN="LEFT"/>|add_task(title: str, description: str)<br ALIGN="LEFT"/>delete_task(task_id: int)<br ALIGN="LEFT"/>get_tasks()<br ALIGN="LEFT"/>update_task(task_id: int, new_title: str, new_description: str)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"todo_list.TaskModel" [color="black", fontcolor="black", label=<{TaskModel|db<br ALIGN="LEFT"/>|add_task(title: str, description: str)<br ALIGN="LEFT"/>delete_task(task_id: int)<br ALIGN="LEFT"/>get_tasks()<br ALIGN="LEFT"/>update_task(task_id: int, new_title: str, new_description: str)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"todo_list.TaskView" [color="black", fontcolor="black", label=<{TaskView|add_edit_button : Button<br ALIGN="LEFT"/>controller<br ALIGN="LEFT"/>root<br ALIGN="LEFT"/>selected_task_id : NoneType, int<br ALIGN="LEFT"/>task_entry : Entry<br ALIGN="LEFT"/>task_list : Listbox<br ALIGN="LEFT"/>title_entry : Entry<br ALIGN="LEFT"/>|add_or_edit_task()<br ALIGN="LEFT"/>delete_task()<br ALIGN="LEFT"/>fill_fields(event)<br ALIGN="LEFT"/>inicializar_atribut_front()<br ALIGN="LEFT"/>inicio_atribut_front()<br ALIGN="LEFT"/>load_tasks()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"todo_list.SQLiteDatabase" -> "todo_list.DatabaseBase" [arrowhead="empty", arrowtail="none"];
+"todo_list.TaskController" -> "todo_list.TaskView" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="controller", style="solid"];
+"todo_list.DatabaseBase" -> "todo_list.TaskModel" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="db", style="solid"];
+"todo_list.TaskModel" -> "todo_list.TaskController" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="model", style="solid"];
+}
